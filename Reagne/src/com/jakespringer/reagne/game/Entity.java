@@ -1,4 +1,4 @@
-package com.jakespringer.reagne.test;
+package com.jakespringer.reagne.game;
 
 public interface Entity {
     /**
