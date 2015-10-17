@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import com.jakespringer.reagne.util.ImmutableTuple2;
 
-public class Stream<T> {
+public class Signal<T> {
     public static final Object DEFAULT_STREAM_OBJECT = new Object();
 
     // list of listeners for the stream to output to
@@ -19,18 +19,18 @@ public class Stream<T> {
     private T data;
 
     // list of things to remove me from on ..#remove()
-    private final List<ImmutableTuple2<Stream<?>, Consumer<?>>> removeMeFrom;
+    private final List<ImmutableTuple2<Signal<?>, Consumer<?>>> removeMeFrom;
     
-    private Stream<T> parent;
+    private Signal<T> parent;
 
     /**
      * Creates a stream and initializes it with a value.
      * 
      * @param item
      *            the initial value of the stream
-     * @see com.jakespringer.reagne.Stream
+     * @see com.jakespringer.reagne.Signal
      */
-    public Stream(final T item) {
+    public Signal(final T item) {
         checkNull(item);
         data = item;
         parent = null;
@@ -51,7 +51,7 @@ public class Stream<T> {
         data = item;
         listeners.stream().forEach(alertable -> {if (alertable != null) alertable.accept(item);});
         
-        Stream<T> current = parent;
+        Signal<T> current = parent;
         while (current != null) {
             current.data = item;
             current = current.parent;
@@ -87,8 +87,8 @@ public class Stream<T> {
      *            the consumer that will be notified
      * @return the new stream
      */
-    public Stream<T> forEach(final Consumer<T> consumer) {
-        final Stream<T> newStream = cloneAndRegister();
+    public Signal<T> forEach(final Consumer<T> consumer) {
+        final Signal<T> newStream = cloneAndRegister();
         newStream.listeners.add(consumer);
         return newStream;
     }
@@ -101,8 +101,8 @@ public class Stream<T> {
      *            the signal with which to filter the stream
      * @return the new stream
      */
-    public Stream<T> filter(final Stream<Boolean> signal) {
-        final Stream<T> stream = cloneAndDontRegister();
+    public Signal<T> filter(final Signal<Boolean> signal) {
+        final Signal<T> stream = cloneAndDontRegister();
 
         final Consumer<T> consumer = x -> {
             if (signal.get()) {
@@ -124,8 +124,8 @@ public class Stream<T> {
      *            the predicate to check
      * @return the new stream
      */
-    public Stream<T> filter(final Predicate<T> predicate) {
-        final Stream<T> stream = cloneAndDontRegister();
+    public Signal<T> filter(final Predicate<T> predicate) {
+        final Signal<T> stream = cloneAndDontRegister();
 
         final Consumer<T> consumer = x -> {
             if (predicate.test(x)) {
@@ -147,10 +147,14 @@ public class Stream<T> {
      *            the stream to combine with this
      * @return the new stream
      */
-    public Stream<T> combine(final Stream<T> stream) {
-        final Stream<T> newStream = cloneAndRegister();
+    public Signal<T> combine(final Signal<T> stream) {
+        final Signal<T> newStream = cloneAndRegister();
         final Consumer<T> consumer = x -> newStream.send(x);
+        final Consumer<T> consumer2 = x -> stream.data = x;
         stream.forEach(consumer);
+        newStream.forEach(consumer2);
+        
+        stream.removeMeFrom.add(new ImmutableTuple2<>(newStream, consumer2));
         newStream.removeMeFrom.add(new ImmutableTuple2<>(stream, consumer));
         return newStream;
     }
@@ -165,8 +169,8 @@ public class Stream<T> {
      *            the value to send to this stream
      * @return the new stream
      */
-    public <S> Stream<T> sendOn(final Stream<S> stream, final BiFunction<S, T, T> supplier) {
-        final Stream<T> newStream = cloneAndRegister();
+    public <S> Signal<T> sendOn(final Signal<S> stream, final BiFunction<S, T, T> supplier) {
+        final Signal<T> newStream = cloneAndRegister();
         final Consumer<S> consumer = x -> newStream.send(supplier.apply(stream.get(), newStream.get()));
         stream.forEach(consumer);
         newStream.removeMeFrom.add(new ImmutableTuple2<>(stream, consumer));
@@ -183,8 +187,8 @@ public class Stream<T> {
      *            the value to send to this stream
      * @return the new stream
      */
-    public <S> Stream<T> sendOn(final Stream<S> stream, final T payload) {
-        final Stream<T> newStream = cloneAndRegister();
+    public <S> Signal<T> sendOn(final Signal<S> stream, final T payload) {
+        final Signal<T> newStream = cloneAndRegister();
         final Consumer<S> consumer = x -> newStream.send(payload);
         stream.forEach(consumer);
         newStream.removeMeFrom.add(new ImmutableTuple2<>(stream, consumer));
@@ -196,8 +200,8 @@ public class Stream<T> {
      * 
      * @return the root stream
      */
-    public Stream<T> asRoot() {
-        Stream<T> newStream = cloneAndRegister();
+    public Signal<T> asRoot() {
+        Signal<T> newStream = cloneAndRegister();
         newStream.removeMeFrom.clear();
         return newStream;
     }
@@ -206,8 +210,8 @@ public class Stream<T> {
     /// PRIVATE HELPER METHODS BELOW
     ///
 
-    private Stream<T> cloneAndRegister() {
-        final Stream<T> cloned = new Stream<>(data);
+    private Signal<T> cloneAndRegister() {
+        final Signal<T> cloned = new Signal<>(data);
         final Consumer<T> consumer = x -> cloned.send(x);
         listeners.add(consumer);
         cloned.removeMeFrom.addAll(removeMeFrom);
@@ -216,9 +220,9 @@ public class Stream<T> {
         return cloned;
     }
 
-    private Stream<T> cloneAndDontRegister() {
+    private Signal<T> cloneAndDontRegister() {
         // no parent, parent is null
-        final Stream<T> cloned = new Stream<>(data);
+        final Signal<T> cloned = new Signal<>(data);
         return cloned;
     }
 

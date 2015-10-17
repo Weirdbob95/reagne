@@ -3,18 +3,18 @@ package com.jakespringer.reagne.input;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import com.jakespringer.reagne.Reagne;
-import com.jakespringer.reagne.Stream;
+import com.jakespringer.reagne.Signal;
 
 public class Input {
     public static final boolean KEY_PRESSED = true;
     public static final boolean KEY_RELEASED = false;
     
-    public static final Stream<Integer> onKeyPress = new Stream<>(0);
-    public static final Stream<Integer> onKeyRelease = new Stream<>(0);
-    public static final Stream<Integer> onMousePress = new Stream<>(0);
-    public static final Stream<Integer> onMouseRelease = new Stream<>(0);
+    public static final Signal<Integer> onKeyPress = new Signal<>(0);
+    public static final Signal<Integer> onKeyRelease = new Signal<>(0);
+    public static final Signal<Integer> onMousePress = new Signal<>(0);
+    public static final Signal<Integer> onMouseRelease = new Signal<>(0);
     
-    private static final Stream<Object> eventLoop = new Stream<>(Stream.DEFAULT_STREAM_OBJECT)
+    private static final Signal<Object> eventLoop = new Signal<>(Signal.DEFAULT_STREAM_OBJECT)
             .sendOn(Reagne.continuous, (dt, x) -> {
                 while (Keyboard.next()) {
                     if (Keyboard.getEventKeyState() == KEY_PRESSED) {
@@ -32,40 +32,40 @@ public class Input {
                     }
                 }
                 
-                return Stream.DEFAULT_STREAM_OBJECT;
+                return Signal.DEFAULT_STREAM_OBJECT;
             }).asRoot();
     
-    public static Stream<Boolean> isKeyPressed(final int key) {
-        return new Stream<Boolean>(false)
+    public static Signal<Boolean> isKeyPressed(final int key) {
+        return new Signal<Boolean>(false)
                 .sendOn(onKeyPress.filter(x -> x.intValue() == key), (k, x) -> true)
                 .sendOn(onKeyRelease.filter(x -> x.intValue() == key), (k, x) -> false);
     }
     
-    public static Stream<Object> whenKeyPressed(final int key) {
-        return new Stream<Object>(Stream.DEFAULT_STREAM_OBJECT)
-                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Stream.DEFAULT_STREAM_OBJECT);
+    public static Signal<Object> whenKeyPressed(final int key) {
+        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
+                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
     }
     
-    public static Stream<Object> whenKeyReleased(final int key) {
-        return new Stream<Object>(Stream.DEFAULT_STREAM_OBJECT)
-                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Stream.DEFAULT_STREAM_OBJECT);
+    public static Signal<Object> whenKeyReleased(final int key) {
+        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
+                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
     }
     
-    public static Stream<Object> whenMousePressed(final int key) {
-        return new Stream<Object>(Stream.DEFAULT_STREAM_OBJECT)
-                .sendOn(onMousePress.filter(x -> x.intValue() == key), Stream.DEFAULT_STREAM_OBJECT);
+    public static Signal<Object> whenMousePressed(final int key) {
+        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
+                .sendOn(onMousePress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
     }
     
-    public static Stream<Object> whenMouseReleased(final int key) {
-        return new Stream<Object>(Stream.DEFAULT_STREAM_OBJECT)
-                .sendOn(onMousePress.filter(x -> x.intValue() == key), Stream.DEFAULT_STREAM_OBJECT);
+    public static Signal<Object> whenMouseReleased(final int key) {
+        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
+                .sendOn(onMousePress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
     }
     
-    public static Stream<Double> whileKeyPressed(final int key) {
+    public static Signal<Double> whileKeyPressed(final int key) {
         return Reagne.continuous.filter(isKeyPressed(key));
     }
     
-    public static Stream<Double> whileKeyReleased(final int key) {
+    public static Signal<Double> whileKeyReleased(final int key) {
         return Reagne.continuous.filter(x -> !isKeyPressed(key).get());
     }
     
