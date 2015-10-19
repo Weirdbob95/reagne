@@ -35,7 +35,8 @@ public class Reagne {
     public static void queueCommand(Command command) {
         if (command == null)
             throw new NullPointerException();
-        commandQueue.add(command);
+//        commandQueue.add(command);
+        command.act();
     }
 
     /**
@@ -92,8 +93,8 @@ public class Reagne {
     private Reagne() {} // disable construction of Reagens
 
     private static void dispatchCommands() {
-        while (!commandQueue.isEmpty()) {
-            commandQueue.remove().act();
-        }
+//        while (!commandQueue.isEmpty()) {
+//            commandQueue.remove().act();
+//        }
     }
 }

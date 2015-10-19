@@ -100,6 +100,7 @@ public class LWJGLWindow {
         if (Display.isCloseRequested()) Reagne.stop();
 
         Display.update();
+        Display.sync(60);
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
