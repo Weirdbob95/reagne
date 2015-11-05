@@ -1,4 +1,5 @@
 /bin/
 *.class
 *.log
-
+/nbproject/
+build.xml
