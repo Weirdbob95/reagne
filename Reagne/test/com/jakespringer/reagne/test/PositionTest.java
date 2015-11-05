@@ -8,7 +8,8 @@ import java.io.File;
 public class PositionTest {
 
     public static void main(String[] args) throws InterruptedException {
-        System.setProperty("org.lwjgl.librarypath", new File("lib/lwjgl/native/windows").getAbsolutePath());
+        System.setProperty("org.lwjgl.librarypath", new File("natives").getAbsolutePath());
+
         final World world = new World();
 
         final LWJGLWindow window = new LWJGLWindow();
