@@ -1,5 +1,6 @@
 package com.jakespringer.reagne;
 
+import com.jakespringer.reagne.util.ImmutableTuple2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -7,9 +8,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import com.jakespringer.reagne.util.ImmutableTuple2;
 
 public class Signal<T> {
+
     public static final Object DEFAULT_STREAM_OBJECT = new Object();
 
     // list of listeners for the stream to output to
@@ -20,14 +21,13 @@ public class Signal<T> {
 
     // list of things to remove me from on ..#remove()
     private final List<ImmutableTuple2<Signal<?>, Consumer<?>>> removeMeFrom;
-    
+
     private Signal<T> parent;
 
     /**
      * Creates a stream and initializes it with a value.
-     * 
-     * @param item
-     *            the initial value of the stream
+     *
+     * @param item the initial value of the stream
      * @see com.jakespringer.reagne.Signal
      */
     public Signal(final T item) {
@@ -42,15 +42,18 @@ public class Signal<T> {
     /**
      * Sends an item to the stream and alerts all listeners that an item has
      * been sent.
-     * 
-     * @param item
-     *            the item to send
+     *
+     * @param item the item to send
      */
     public void send(T item) {
         checkNull(item);
         data = item;
-        listeners.stream().forEach(alertable -> {if (alertable != null) alertable.accept(item);});
-        
+        listeners.stream().forEach(alertable -> {
+            if (alertable != null) {
+                alertable.accept(item);
+            }
+        });
+
         Signal<T> current = parent;
         while (current != null) {
             current.data = item;
@@ -61,7 +64,7 @@ public class Signal<T> {
     /**
      * Returns the last value sent to this stream. If no value has been sent
      * will return the initial value of the stream.
-     * 
+     *
      * @return the last value of the stream
      */
     public T get() {
@@ -82,9 +85,8 @@ public class Signal<T> {
      * Creates an returns a new stream that will activate the supplied Consumer
      * whenever an item is sent to the stream. The stream will pass on the item
      * sent to the consumer.
-     * 
-     * @param consumer
-     *            the consumer that will be notified
+     *
+     * @param consumer the consumer that will be notified
      * @return the new stream
      */
     public Signal<T> forEach(final Consumer<T> consumer) {
@@ -96,9 +98,8 @@ public class Signal<T> {
     /**
      * Creates an returns a new stream that will update IF AND ONLY IF the
      * signal supplied is 'true'.
-     * 
-     * @param signal
-     *            the signal with which to filter the stream
+     *
+     * @param signal the signal with which to filter the stream
      * @return the new stream
      */
     public Signal<T> filter(final Signal<Boolean> signal) {
@@ -119,9 +120,8 @@ public class Signal<T> {
     /**
      * Creates and returns a new stream that filters everything sent while the
      * predicate is false.
-     * 
-     * @param predicate
-     *            the predicate to check
+     *
+     * @param predicate the predicate to check
      * @return the new stream
      */
     public Signal<T> filter(final Predicate<T> predicate) {
@@ -142,9 +142,8 @@ public class Signal<T> {
     /**
      * Creates and returns a new stream that combines two streams and fires
      * whenever both streams fire.
-     * 
-     * @param stream
-     *            the stream to combine with this
+     *
+     * @param stream the stream to combine with this
      * @return the new stream
      */
     public Signal<T> combine(final Signal<T> stream) {
@@ -153,7 +152,7 @@ public class Signal<T> {
         final Consumer<T> consumer2 = x -> stream.data = x;
         stream.forEach(consumer);
         newStream.forEach(consumer2);
-        
+
         stream.removeMeFrom.add(new ImmutableTuple2<>(newStream, consumer2));
         newStream.removeMeFrom.add(new ImmutableTuple2<>(stream, consumer));
         return newStream;
@@ -162,11 +161,9 @@ public class Signal<T> {
     /**
      * Sends the result of the supplier when the stream given receives a value.
      * The supplier is fed the value of the stream given.
-     * 
-     * @param stream
-     *            the stream to monitor
-     * @param supplier
-     *            the value to send to this stream
+     *
+     * @param stream the stream to monitor
+     * @param supplier the value to send to this stream
      * @return the new stream
      */
     public <S> Signal<T> sendOn(final Signal<S> stream, final BiFunction<S, T, T> supplier) {
@@ -176,15 +173,13 @@ public class Signal<T> {
         newStream.removeMeFrom.add(new ImmutableTuple2<>(stream, consumer));
         return newStream;
     }
-    
+
     /**
-     * Sends the payload when the stream given receives a value.
-     * The supplier is fed the value of the stream given.
-     * 
-     * @param stream
-     *            the stream to monitor
-     * @param payload
-     *            the value to send to this stream
+     * Sends the payload when the stream given receives a value. The supplier is
+     * fed the value of the stream given.
+     *
+     * @param stream the stream to monitor
+     * @param payload the value to send to this stream
      * @return the new stream
      */
     public <S> Signal<T> sendOn(final Signal<S> stream, final T payload) {
@@ -197,7 +192,7 @@ public class Signal<T> {
 
     /**
      * Returns a stream that will not be removed when a substream is removed.
-     * 
+     *
      * @return the root stream
      */
     public Signal<T> asRoot() {
@@ -209,7 +204,6 @@ public class Signal<T> {
     ///
     /// PRIVATE HELPER METHODS BELOW
     ///
-
     private Signal<T> cloneAndRegister() {
         final Signal<T> cloned = new Signal<>(data);
         final Consumer<T> consumer = x -> cloned.send(x);
