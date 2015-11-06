@@ -1,10 +1,11 @@
 package com.jakespringer.reagne.input;
 
-import com.jakespringer.reagne.Reagne;
-import com.jakespringer.reagne.Signal;
 import static com.jakespringer.reagne.Signal.DEFAULT_OBJECT;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import com.jakespringer.reagne.Reagne;
+import com.jakespringer.reagne.Signal;
+import com.jakespringer.reagne.util.Event;
 
 public class Input {
 
@@ -43,24 +44,24 @@ public class Input {
                 .sendOn(onKeyRelease.filter(x -> x == key), (k, x) -> false);
     }
 
-    public static Signal whenKeyPressed(final int key) {
-        return new Signal<>(DEFAULT_OBJECT)
-                .sendOn(onKeyPress.filter(x -> x == key), DEFAULT_OBJECT);
+    public static Event whenKeyPressed(final int key) {
+        return new Event()
+                .sendOn(onKeyPress.filter(x -> x == key));
     }
 
-    public static Signal whenKeyReleased(final int key) {
-        return new Signal<>(DEFAULT_OBJECT)
-                .sendOn(onKeyPress.filter(x -> x == key), DEFAULT_OBJECT);
+    public static Event whenKeyReleased(final int key) {
+        return new Event()
+                .sendOn(onKeyPress.filter(x -> x == key));
     }
 
-    public static Signal whenMousePressed(final int key) {
-        return new Signal<>(DEFAULT_OBJECT)
-                .sendOn(onMousePress.filter(x -> x == key), DEFAULT_OBJECT);
+    public static Event whenMousePressed(final int key) {
+        return new Event()
+                .sendOn(onMousePress.filter(x -> x == key));
     }
 
-    public static Signal whenMouseReleased(final int key) {
-        return new Signal<>(DEFAULT_OBJECT)
-                .sendOn(onMousePress.filter(x -> x == key), DEFAULT_OBJECT);
+    public static Event whenMouseReleased(final int key) {
+        return new Event()
+                .sendOn(onMousePress.filter(x -> x == key));
     }
 
     public static Signal<Double> whileKeyDown(final int key) {

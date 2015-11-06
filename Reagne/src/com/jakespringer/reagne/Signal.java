@@ -14,15 +14,15 @@ public class Signal<T> {
     public static final Object DEFAULT_OBJECT = new Object();
 
     // list of listeners for the stream to output to
-    private final Queue<Consumer<T>> listeners;
+    protected final Queue<Consumer<T>> listeners;
 
     // current data of this stream
-    private T data;
+    protected T data;
 
     // list of things to remove me from on ..#remove()
-    private final List<ImmutableTuple2<Signal<?>, Consumer<?>>> removeMeFrom;
+    protected final List<ImmutableTuple2<Signal<?>, Consumer<?>>> removeMeFrom;
 
-    private Signal<T> parent;
+    protected Signal<T> parent;
 
     /**
      * Creates a stream and initializes it with a value.
@@ -220,7 +220,7 @@ public class Signal<T> {
         return cloned;
     }
 
-    private void checkNull(T item) {
+    protected void checkNull(T item) {
         if (item == null) {
             throw new NullPointerException("You cannot send a null item.");
         }
