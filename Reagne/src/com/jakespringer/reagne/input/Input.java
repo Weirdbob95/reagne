@@ -14,7 +14,7 @@ public class Input {
     public static final Signal<Integer> onMousePress = new Signal<>(0);
     public static final Signal<Integer> onMouseRelease = new Signal<>(0);
     
-    private static final Signal<Object> eventLoop = new Signal<>(Signal.DEFAULT_STREAM_OBJECT)
+    private static final Signal<Object> eventLoop = new Signal<>(Signal.DEFAULT_OBJECT)
             .sendOn(Reagne.continuous, (dt, x) -> {
                 while (Keyboard.next()) {
                     if (Keyboard.getEventKeyState() == KEY_PRESSED) {
@@ -32,7 +32,7 @@ public class Input {
                     }
                 }
                 
-                return Signal.DEFAULT_STREAM_OBJECT;
+                return Signal.DEFAULT_OBJECT;
             }).asRoot();
     
     public static Signal<Boolean> isKeyPressed(final int key) {
@@ -42,23 +42,23 @@ public class Input {
     }
     
     public static Signal<Object> whenKeyPressed(final int key) {
-        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
-                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
+        return new Signal<Object>(Signal.DEFAULT_OBJECT)
+                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Signal.DEFAULT_OBJECT);
     }
     
     public static Signal<Object> whenKeyReleased(final int key) {
-        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
-                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
+        return new Signal<Object>(Signal.DEFAULT_OBJECT)
+                .sendOn(onKeyPress.filter(x -> x.intValue() == key), Signal.DEFAULT_OBJECT);
     }
     
     public static Signal<Object> whenMousePressed(final int key) {
-        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
-                .sendOn(onMousePress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
+        return new Signal<Object>(Signal.DEFAULT_OBJECT)
+                .sendOn(onMousePress.filter(x -> x.intValue() == key), Signal.DEFAULT_OBJECT);
     }
     
     public static Signal<Object> whenMouseReleased(final int key) {
-        return new Signal<Object>(Signal.DEFAULT_STREAM_OBJECT)
-                .sendOn(onMousePress.filter(x -> x.intValue() == key), Signal.DEFAULT_STREAM_OBJECT);
+        return new Signal<Object>(Signal.DEFAULT_OBJECT)
+                .sendOn(onMousePress.filter(x -> x.intValue() == key), Signal.DEFAULT_OBJECT);
     }
     
     public static Signal<Double> whileKeyPressed(final int key) {

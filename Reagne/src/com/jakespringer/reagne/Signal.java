@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import com.jakespringer.reagne.util.ImmutableTuple2;
 
 public class Signal<T> {
-    public static final Object DEFAULT_STREAM_OBJECT = new Object();
+    public static final Object DEFAULT_OBJECT = new Object();
 
     // list of listeners for the stream to output to
     private final Queue<Consumer<T>> listeners;
