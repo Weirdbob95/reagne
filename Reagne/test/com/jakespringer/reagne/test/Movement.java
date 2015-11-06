@@ -14,10 +14,10 @@ public class Movement {
     
     public static Signal<Vec2> makeWASDVelocitySystem(final double SPEED_COEFFICIENT) {
         return new Signal<>(new Vec2())
-                .sendOn(Input.whileKeyPressed(Keyboard.KEY_W), (dt, x) -> x.add(new Vec2(0.0, dt*SPEED_COEFFICIENT)))
-                .sendOn(Input.whileKeyPressed(Keyboard.KEY_D), (dt, x) -> x.add(new Vec2(dt*SPEED_COEFFICIENT, 0.0)))
-                .sendOn(Input.whileKeyPressed(Keyboard.KEY_A), (dt, x) -> x.add(new Vec2(-dt*SPEED_COEFFICIENT, 0.0)))
-                .sendOn(Input.whileKeyPressed(Keyboard.KEY_S), (dt, x) -> x.add(new Vec2(0.0, -dt*SPEED_COEFFICIENT)));
+                .sendOn(Input.whileKeyDown(Keyboard.KEY_W), (dt, x) -> x.add(new Vec2(0.0, dt*SPEED_COEFFICIENT)))
+                .sendOn(Input.whileKeyDown(Keyboard.KEY_D), (dt, x) -> x.add(new Vec2(dt*SPEED_COEFFICIENT, 0.0)))
+                .sendOn(Input.whileKeyDown(Keyboard.KEY_A), (dt, x) -> x.add(new Vec2(-dt*SPEED_COEFFICIENT, 0.0)))
+                .sendOn(Input.whileKeyDown(Keyboard.KEY_S), (dt, x) -> x.add(new Vec2(0.0, -dt*SPEED_COEFFICIENT)));
     }
     
     public static Signal<Vec2> makeFrictionSystem() {
