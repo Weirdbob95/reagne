@@ -1,11 +1,13 @@
 package com.jakespringer.reagne.input;
 
-import static com.jakespringer.reagne.Signal.DEFAULT_OBJECT;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import com.jakespringer.reagne.Reagne;
 import com.jakespringer.reagne.Signal;
+import com.jakespringer.reagne.gfx.Window;
+import com.jakespringer.reagne.math.Vec2;
 import com.jakespringer.reagne.util.Event;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
 
 public class Input {
 
@@ -17,26 +19,60 @@ public class Input {
     public static final Signal<Integer> onMousePress = new Signal<>(0);
     public static final Signal<Integer> onMouseRelease = new Signal<>(0);
 
-    private static final Signal<Object> eventLoop = new Signal<>(Signal.DEFAULT_OBJECT)
-            .sendOn(Reagne.continuous, (dt, x) -> {
-                while (Keyboard.next()) {
-                    if (Keyboard.getEventKeyState() == KEY_PRESSED) {
-                        onKeyPress.send(Integer.valueOf(Keyboard.getEventKey()));
-                    } else /* ..getEventKeyState() == KEY_RELEASED */ {
-                        onKeyRelease.send(Integer.valueOf(Keyboard.getEventKey()));
-                    }
-                }
+    private static Vec2 mouse;
+    private static Vec2 mouseDelta;
+    private static Vec2 mouseScreen;
 
-                while (Mouse.next()) {
-                    if (Mouse.getEventButtonState() == KEY_PRESSED) {
-                        onMousePress.send(Mouse.getEventButton());
-                    } else /* ..getEventButtonState() == KEY_RELEASED */ {
-                        onMouseRelease.send(Mouse.getEventButton());
-                    }
-                }
+    public static Vec2 getMouse() {
+        return mouse;
+    }
 
-                return Signal.DEFAULT_OBJECT;
-            }).asRoot();
+    public static Vec2 getMouseDelta() {
+        return mouseDelta;
+    }
+
+    public static Vec2 getMouseScreen() {
+        return mouseScreen;
+    }
+
+    static {
+        Reagne.continuous.forEach(dt -> {
+            while (Keyboard.next()) {
+                if (Keyboard.getEventKeyState() == KEY_PRESSED) {
+                    onKeyPress.send(Keyboard.getEventKey());
+                } else /* ..getEventKeyState() == KEY_RELEASED */ {
+                    onKeyRelease.send(Keyboard.getEventKey());
+                }
+            }
+
+            while (Mouse.next()) {
+                if (Mouse.getEventButtonState() == KEY_PRESSED) {
+                    onMousePress.send(Mouse.getEventButton());
+                } else /* ..getEventButtonState() == KEY_RELEASED */ {
+                    onMouseRelease.send(Mouse.getEventButton());
+                }
+            }
+
+            double w = Display.getWidth();
+            double h = Display.getHeight();
+            double ar = Window.aspectRatio();
+            double vw, vh;
+
+            if (w / h > ar) {
+                vw = ar * h;
+                vh = h;
+            } else {
+                vw = w;
+                vh = w / ar;
+            }
+            double left = (w - vw) / 2;
+            double bottom = (h - vh) / 2;
+
+            mouseScreen = new Vec2((Mouse.getX() - left) / vw, (Mouse.getY() - bottom) / vh).multiply(Window.viewSize);
+            mouse = mouseScreen.subtract(Window.viewSize.multiply(.5)).add(Window.viewPos);
+            mouseDelta = new Vec2(Mouse.getDX() / vw, Mouse.getDY() / vh).multiply(Window.viewSize);
+        });
+    }
 
     public static Signal<Boolean> isKeyPressed(final int key) {
         return new Signal<>(false)
